@@ -1,0 +1,13 @@
+apiVersion: reviewtron.k8s.revelry.co/v1
+kind: ReviewApp
+metadata:
+  name: test
+  namespace: default
+spec:
+  repo: "revelrylabs/revelry_phoenix_app_template"
+  branch: "test-review-operator"
+  pr: "678"
+  commitHash: "c8c9aa334a76677aa0be4ec0ebb08484367f952d"
+  # TODO: the whole review app config from the app repo
+status: {}
+

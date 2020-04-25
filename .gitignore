@@ -1,0 +1,15 @@
+# App artifacts
+/_build
+/deps
+/.elixir_ls
+coverage
+/cover
+.nyc_output
+
+# Generated on crash by the VM
+erl_crash.dump
+
+# Files matching config/*.secret.exs pattern contain sensitive
+# data and you should not commit them into version control.
+/config/*.secret.exs
+
