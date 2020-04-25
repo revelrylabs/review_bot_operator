@@ -4,10 +4,48 @@ metadata:
   name: test
   namespace: default
 spec:
-  repo: "revelrylabs/revelry_phoenix_app_template"
+  repo: "revelry_phoenix_app_template"
   branch: "test-review-operator"
   pr: "678"
   commitHash: "c8c9aa334a76677aa0be4ec0ebb08484367f952d"
-  # TODO: the whole review app config from the app repo
+  tarballUrl: "https://s3.aws.com/bucket/repo_source.tar.gz"
+  config:
+    namespace: app-template
+    applicationPort: 5000
+    registrySecretName: harbor
+    migrate:
+      command: ["./bin/app_template"]
+      args: ["eval", "AppTemplate.ReleaseTasks.migrate()"]
+    database:
+      backend: kubedb
+      version: 10.6
+      copyFrom:
+        user:
+          secretRef:
+            name: database-resource-auth
+            key: POSTGRES_USER
+        database:
+          value: postgres
+        host:
+          value: database-resource
+        password:
+          secretRef:
+            name: database-resource-auth
+            key: POSTGRES_PASSWORD
+    env:
+      secrets:
+        - secretOne
+        - secretTwo
+      configMaps:
+        - configMapOne
+        - configMapTwo
+      values:
+        - name: ENV_ONE
+          value: "value number one"
+        - name: ENV_TWO
+          value: 1
+    ignoreBranches:
+      - /dependabot.*/
+      - ignore-me
 status: {}
 

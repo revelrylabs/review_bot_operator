@@ -9,7 +9,7 @@ Deploy review apps for pull request
   - appStatus: status.appStatus || "building"
   - buildStatus: "building"
   - jobName: "build-{SHA}"
-  - latestImageTag: "whatever"
+  - image: "whatever"
   - startedAt: 1552453453
   - lastCommit: {SHA}
 
@@ -45,14 +45,15 @@ Tear down all of the resources, including all build jobs associated with this re
 
 
 ### Requirements from the Probot side
+1. Upload the tarball to S3 (so the operator doesn't need GitHub access)
 1. Provide review app config from the repo's yaml file
-1. Provide branch, repo, PR #, commit hash
-1. Update the commitHash and review app config when the PR is updated
+1. Provide branch, repo, PR # (as a string), commit hash, tarballUrl
+1. Update the commitHash, tarballUrl, and review app config when the PR is updated
 
 
 ### Config Requirements
 1. Sort out the k8s permissions required and annotate the controller
-1. I believe the AWS and Harbor permissions are already in the builder namespace and the same build jobs should work
+1. I believe the AWS and Harbor permissions are already in the builder namespace and the same build jobs should work w/o any changes there
 
 
 ### List of resources
