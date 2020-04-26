@@ -9,3 +9,6 @@ config :k8s,
 
 config :bonny,
   cluster_name: :minikube
+
+config :review_app_operator,
+  docker_root: ""

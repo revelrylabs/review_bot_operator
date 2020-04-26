@@ -4,6 +4,8 @@ defmodule ReviewAppOperator.Controller.V1.ReviewApp do
   """
   use Bonny.Controller
   require Logger
+  alias ReviewAppOperator.Resource
+  alias ReviewAppOperator.Build.Builder
 
   @scope :cluster
 
@@ -47,6 +49,9 @@ defmodule ReviewAppOperator.Controller.V1.ReviewApp do
   @impl Bonny.Controller
   def add(%{} = reviewapp) do
     log_event(:add, reviewapp)
+
+    Builder.build_image(reviewapp)
+    Resource.create_all(reviewapp)
     :ok
   end
 
@@ -57,6 +62,7 @@ defmodule ReviewAppOperator.Controller.V1.ReviewApp do
   @impl Bonny.Controller
   def modify(%{} = reviewapp) do
     log_event(:modify, reviewapp)
+    # TODO
     :ok
   end
 
@@ -67,6 +73,8 @@ defmodule ReviewAppOperator.Controller.V1.ReviewApp do
   @impl Bonny.Controller
   def delete(%{} = reviewapp) do
     log_event(:delete, reviewapp)
+    Builder.delete_job(reviewapp)
+    Resource.delete_all(reviewapp)
     :ok
   end
 

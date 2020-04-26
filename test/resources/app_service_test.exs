@@ -1,4 +1,4 @@
-defmodule ReviewAppOperator.Resources.AppServiceTest do
+defmodule ReviewAppOperator.Resource.AppServiceTest do
   use ExUnit.Case
-  doctest ReviewAppOperator.Resources.AppService
+  doctest ReviewAppOperator.Resource.AppService
 end

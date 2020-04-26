@@ -4,29 +4,30 @@ Deploy review apps for pull request
 
 
 ### build_app
+* Delete the existing Job resource, if any
 * Create a Job to build the review app
 * Update the review app's status info with
   - appStatus: status.appStatus || "building"
   - buildStatus: "building"
-  - jobName: "build-{SHA}"
+  - buildJobName: "build-{SHA}"
   - image: "whatever"
-  - startedAt: 1552453453
-  - lastCommit: {SHA}
+  - buildStartedAt: 1552453453
+  - buildCommit: {SHA}
 
 
 ### ADD
 * build_app
 * Generate the resources and CREATE them, but use a 0 in the deployment replicas
+  (The deployment resource builder can do ^ based on the status info on the reviewapp)
 
 
 ### MODIFY
-* If the commitHash == status.lastCommit, ignore (in case we trigger our own events)
-* If status.buildStatus == "building" kill the existing job (optional)
+* Exit if the commitHash == status.buildCommit (b/c we trigger our own events)
 * build_app
 
 
 ### RECONCILE
-* If status.buildStatus != "building", exit
+* Exit unless status.buildStatus == "building"
 * check the job's status
   * If still building, exit
   * If error
@@ -41,7 +42,7 @@ Deploy review apps for pull request
 
 
 ### DELETE
-Tear down all of the resources, including all build jobs associated with this review app
+Tear down all of the resources, including the current build job specified on the review app
 
 
 ### Requirements from the Probot side
