@@ -1,20 +1,42 @@
 defmodule ReviewAppOperator.Build.Builder do
   alias ReviewAppOperator.Resource
   alias ReviewAppOperator.Resource.{ReviewApp, BuildJob}
+  require Logger
 
   def build_image(reviewapp) do
     delete_job(reviewapp)
     updated_app = update_status(reviewapp)
 
-    # TODO: create a Job resource
+    {:ok, _job} =
+      reviewapp
+      |> BuildJob.from_review_app()
+      |> Resource.create()
 
     Resource.patch(updated_app)
 
     :ok
   end
 
-  def delete_job(%{"status" => %{"buildJobName" => _job_name}}) do
-    # TODO: delete the thing
+  def job_status(%{"status" => %{"buildJobName" => job_name}}) do
+    {:ok, job} =
+      job_name
+      |> BuildJob.selector()
+      |> Resource.get()
+
+    BuildJob.status(job)
+  end
+
+  def delete_job(%{"status" => %{"buildJobName" => job_name}}) do
+    case job_name
+         |> BuildJob.selector()
+         |> Resource.get() do
+      {:ok, job} ->
+        Resource.delete(job)
+
+      _ ->
+        Logger.info("Job #{job_name} not found. Skipping delete")
+        :not_found
+    end
   end
 
   def delete_job(_), do: nil

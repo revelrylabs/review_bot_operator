@@ -32,10 +32,10 @@ Deploy review apps for pull request
   * If still building, exit
   * If error
     * set status.buildStatus = "error"
-    * run DELETE action
+    * just stop
   * If done
     * Update the deployment based on the latest in the ReviewApp, this time with 1 replica and the new image tag
-    * Set status.buildStatus = "done"
+    * Set status.buildStatus = "success"
     * Set status.appStatus = "deployed"
 
  (I believe this gets called every 30s by default)

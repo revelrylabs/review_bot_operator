@@ -5,6 +5,7 @@ defmodule ReviewAppOperator.Controller.V1.ReviewApp do
   use Bonny.Controller
   require Logger
   alias ReviewAppOperator.Resource
+  alias ReviewAppOperator.Resource.ReviewApp
   alias ReviewAppOperator.Build.Builder
 
   @scope :cluster
@@ -62,7 +63,7 @@ defmodule ReviewAppOperator.Controller.V1.ReviewApp do
   @impl Bonny.Controller
   def modify(%{} = reviewapp) do
     log_event(:modify, reviewapp)
-    # TODO
+    # TODO: Compare commit hashes and rebuild if necessary
     :ok
   end
 
@@ -83,6 +84,18 @@ defmodule ReviewAppOperator.Controller.V1.ReviewApp do
   """
   @spec reconcile(map()) :: :ok | :error
   @impl Bonny.Controller
+  def reconcile(%{"status" => %{"buildStatus" => "building"}} = reviewapp) do
+    log_event(:reconcile, reviewapp)
+
+    case Builder.job_status(reviewapp) do
+      :success -> handle_build_success(reviewapp)
+      :failure -> handle_build_failure(reviewapp)
+      :running -> nil
+    end
+
+    :ok
+  end
+
   def reconcile(%{} = reviewapp) do
     log_event(:reconcile, reviewapp)
     :ok
@@ -90,4 +103,24 @@ defmodule ReviewAppOperator.Controller.V1.ReviewApp do
 
   defp log_event(type, resource),
     do: Logger.info("#{type}: #{inspect(resource)}")
+
+  defp handle_build_success(reviewapp) do
+    _updated_app =
+      reviewapp
+      |> ReviewApp.set_status("buildStatus", "success")
+      |> ReviewApp.set_status("appStatus", "deployed")
+      |> Resource.patch()
+
+    # TODO: something like this
+    # updated_app
+    # |> Deployment.from_review_app()
+    # |> Resource.patch()
+  end
+
+  defp handle_build_failure(reviewapp) do
+    reviewapp
+    |> ReviewApp.set_status("buildStatus", "error")
+    |> ReviewApp.set_status("appStatus", "error")
+    |> Resource.patch()
+  end
 end

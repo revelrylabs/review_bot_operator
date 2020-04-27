@@ -20,9 +20,11 @@ defmodule ReviewAppOperator.Resource do
 
   def create(resource), do: apply_operation(resource, &K8s.Client.create/1)
 
-  def delete(resource), do: apply_operation(resource, &K8s.Client.delete/1)
+  def get(resource), do: apply_operation(resource, &K8s.Client.get/1)
 
   def patch(resource), do: apply_operation(resource, &K8s.Client.patch/1)
+
+  def delete(resource), do: apply_operation(resource, &K8s.Client.delete/1)
 
   def default_labels(%{"spec" => %{"pr" => pr, "repo" => repo}}) do
     group = Bonny.Config.group()

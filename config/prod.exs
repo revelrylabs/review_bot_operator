@@ -11,4 +11,5 @@ config :bonny,
 
 # TODO: move to env vars
 config :review_app_operator,
-  docker_root: "harbor.revelry-prod.revelry.net"
+  docker_root: "harbor.revelry-prod.revelry.net",
+  build_namespace: "review-build"
