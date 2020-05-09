@@ -1,0 +1,37 @@
+# Install the source DB used to bootstrap the review app DB
+# We can check for the users table to verify the copy succeeded
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: app-template
+---
+apiVersion: kubedb.com/v1alpha1
+kind: Postgres
+metadata:
+  name: database-source
+  namespace: app-template
+spec:
+  replicas: 1
+  storage:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 256Mi
+  storageType: Durable
+  terminationPolicy: DoNotTerminate
+  version: "10.6"
+  init:
+    scriptSource:
+      configMap:
+        name: db-init
+---
+apiVersion: v1
+data:
+  init.sql: |
+    \c postgres;
+    CREATE TABLE users(id SERIAL, email TEXT);
+kind: ConfigMap
+metadata:
+  name: db-init
+  namespace: app-template

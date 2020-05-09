@@ -15,4 +15,9 @@ config :bonny,
     requests: %{cpu: "200m", memory: "200Mi"}
   }
 
+config :review_app_operator,
+  build_image: "gcr.io/kaniko-project/executor:latest",
+  build_unpack_image: "harbor.revelry-prod.revelry.net/library/kaniko-unpack:latest",
+  build_pull_secrets: ["harbor-credentials"]
+
 import_config "#{Mix.env()}.exs"

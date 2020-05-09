@@ -4,6 +4,7 @@ metadata:
   name: test
   namespace: default
 spec:
+  repoOwner: "revelrylabs"
   repo: "revelry_phoenix_app_template"
   branch: "test-review-operator"
   pr: "678"
@@ -18,19 +19,17 @@ spec:
       args: ["eval", "AppTemplate.ReleaseTasks.migrate()"]
     database:
       backend: kubedb
-      version: 10.6
+      version: "10.6"
       copyFrom:
         user:
-          secretRef:
-            name: database-resource-auth
-            key: POSTGRES_USER
+          value: postgres
         database:
           value: postgres
         host:
-          value: database-resource
+          value: database-source
         password:
           secretRef:
-            name: database-resource-auth
+            name: database-source-auth
             key: POSTGRES_PASSWORD
     env:
       secrets:

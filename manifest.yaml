@@ -1,0 +1,161 @@
+---
+{
+  "apiVersion": "apiextensions.k8s.io/v1beta1",
+  "kind": "CustomResourceDefinition",
+  "metadata": {
+    "labels": {
+      "review_app": "true",
+      "k8s-app": "review-app-operator"
+    },
+    "name": "reviewapps.reviewtron.k8s.revelry.co"
+  },
+  "spec": {
+    "additionalPrinterColumns": [
+      {
+        "JSONPath": ".spec.repo",
+        "description": "The name of the source code repo",
+        "name": "repo",
+        "type": "string"
+      },
+      {
+        "JSONPath": ".spec.branch",
+        "description": "The branch this review app is based on",
+        "name": "branch",
+        "type": "string"
+      },
+      {
+        "JSONPath": ".spec.pr",
+        "description": "The pull request identifier for this branch",
+        "name": "PR",
+        "type": "string"
+      },
+      {
+        "JSONPath": ".status.appStatus",
+        "description": "The status of the review app",
+        "name": "Status",
+        "type": "string"
+      },
+      {
+        "JSONPath": ".metadata.creationTimestamp",
+        "description": "CreationTimestamp is a timestamp representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations. Clients may not set this value. It is represented in RFC3339 form and is in UTC.\n\n      Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata",
+        "name": "Age",
+        "type": "date"
+      }
+    ],
+    "group": "reviewtron.k8s.revelry.co",
+    "names": {
+      "kind": "ReviewApp",
+      "plural": "reviewapps",
+      "shortNames": [],
+      "singular": "reviewapp"
+    },
+    "scope": "Cluster",
+    "version": "v1"
+  }
+}
+---
+{
+  "apiVersion": "rbac.authorization.k8s.io/v1",
+  "kind": "ClusterRole",
+  "metadata": {
+    "labels": {
+      "review_app": "true",
+      "k8s-app": "review-app-operator"
+    },
+    "name": "review-app-operator"
+  },
+  "rules": [
+    {
+      "apiGroups": [
+        "apiextensions.k8s.io"
+      ],
+      "resources": [
+        "customresourcedefinitions"
+      ],
+      "verbs": [
+        "*"
+      ]
+    },
+    {
+      "apiGroups": [
+        "reviewtron.k8s.revelry.co"
+      ],
+      "resources": [
+        "reviewapps"
+      ],
+      "verbs": [
+        "*"
+      ]
+    },
+    {
+      "apiGroups": [
+        "revelry.co"
+      ],
+      "resources": [
+        "reviewapps"
+      ],
+      "verbs": [
+        "*"
+      ]
+    },
+    {
+      "apiGroups": [
+        "apps"
+      ],
+      "resources": [
+        "deployments"
+      ],
+      "verbs": [
+        "*"
+      ]
+    },
+    {
+      "apiGroups": [
+        ""
+      ],
+      "resources": [
+        "services"
+      ],
+      "verbs": [
+        "*"
+      ]
+    }
+  ]
+}
+---
+{
+  "apiVersion": "v1",
+  "kind": "ServiceAccount",
+  "metadata": {
+    "labels": {
+      "review_app": "true",
+      "k8s-app": "review-app-operator"
+    },
+    "name": "review-app-operator",
+    "namespace": "default"
+  }
+}
+---
+{
+  "apiVersion": "rbac.authorization.k8s.io/v1",
+  "kind": "ClusterRoleBinding",
+  "metadata": {
+    "labels": {
+      "review_app": "true",
+      "k8s-app": "review-app-operator"
+    },
+    "name": "review-app-operator"
+  },
+  "roleRef": {
+    "apiGroup": "rbac.authorization.k8s.io",
+    "kind": "ClusterRole",
+    "name": "review-app-operator"
+  },
+  "subjects": [
+    {
+      "kind": "ServiceAccount",
+      "name": "review-app-operator",
+      "namespace": "default"
+    }
+  ]
+}
