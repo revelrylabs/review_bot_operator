@@ -3,12 +3,12 @@ defmodule ReviewAppOperator.Build.Builder do
   alias ReviewAppOperator.Resource.{ReviewApp, BuildJob}
   require Logger
 
-  def build_image(reviewapp) do
-    delete_job(reviewapp)
-    updated_app = update_status(reviewapp)
+  def build_image(review_app) do
+    delete_job(review_app)
+    updated_app = update_status(review_app)
 
     {:ok, _job} =
-      reviewapp
+      review_app
       |> BuildJob.from_review_app()
       |> Resource.create()
 
@@ -41,13 +41,13 @@ defmodule ReviewAppOperator.Build.Builder do
 
   def delete_job(_), do: nil
 
-  defp update_status(%{"spec" => %{"commitHash" => hash}} = reviewapp) do
-    app_status = ReviewApp.get_status(reviewapp, "appStatus", "building")
+  defp update_status(%{"spec" => %{"commitHash" => hash}} = review_app) do
+    app_status = ReviewApp.get_status(review_app, "appStatus", "building")
     start_time = DateTime.to_unix(DateTime.utc_now())
-    image = BuildJob.image_tag(reviewapp)
-    job_name = BuildJob.job_name(reviewapp)
+    image = BuildJob.image_tag(review_app)
+    job_name = BuildJob.job_name(review_app)
 
-    reviewapp
+    review_app
     |> ReviewApp.set_status("appStatus", app_status)
     |> ReviewApp.set_status("buildStatus", "building")
     |> ReviewApp.set_status("buildStartedAt", start_time)

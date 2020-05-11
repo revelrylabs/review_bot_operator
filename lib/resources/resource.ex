@@ -2,20 +2,26 @@ defmodule ReviewAppOperator.Resource do
   @moduledoc """
   Utilities for working with resources
 
-  # TODO: This module could use some tests
+  # TODO: docspecs on the label and name functions
   # TODO: we'll need to use Mox for the k8s client
   """
   require Logger
-  alias ReviewAppOperator.Resource.AppService
+  alias ReviewAppOperator.Resource.{AppService, AppDatabase, DbCopySecret}
 
   @max_k8s_name_length 63
 
-  def create_all(reviewapp) do
-    create(AppService.from_review_app(reviewapp))
+  def create_all(review_app) do
+    all_modules()
+    |> Enum.map(&apply(&1, :from_review_app, [review_app]))
+    |> Enum.filter(& &1)
+    |> Enum.map(&create/1)
   end
 
-  def delete_all(reviewapp) do
-    delete(AppService.from_review_app(reviewapp))
+  def delete_all(review_app) do
+    all_modules()
+    |> Enum.map(&apply(&1, :from_review_app, [review_app]))
+    |> Enum.filter(& &1)
+    |> Enum.map(&delete/1)
   end
 
   def create(resource), do: apply_operation(resource, &K8s.Client.create/1)
@@ -41,7 +47,17 @@ defmodule ReviewAppOperator.Resource do
 
   def valid_label(name), do: kube_safe_name(name, 0)
 
+  def valid_label(%{"spec" => %{"pr" => _pr, "repo" => _repo}} = review_app, postfix)
+      when is_binary(postfix) do
+    valid_label(review_app, postfix, 0)
+  end
+
   def valid_label(name, pr), do: valid_label(name, pr, 0)
+
+  def valid_label(%{"spec" => %{"pr" => pr, "repo" => repo}}, postfix, headroom)
+      when is_binary(postfix) and is_integer(headroom) do
+    valid_label(repo, pr, postfix, headroom)
+  end
 
   def valid_label(name, pr, headroom) when is_integer(headroom) do
     Enum.join(
@@ -65,6 +81,10 @@ defmodule ReviewAppOperator.Resource do
       ],
       "--"
     )
+  end
+
+  defp all_modules do
+    [AppService, DbCopySecret, AppDatabase]
   end
 
   defp kube_safe_name(base_name, headroom) do

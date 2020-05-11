@@ -5,27 +5,27 @@ defmodule ReviewAppOperator.Resource.ReviewApp do
 
   # TODO: better have a type for this!
 
-  def namespace(reviewapp), do: get_from_config(reviewapp, "namespace")
-  def port(reviewapp), do: get_from_config(reviewapp, "applicationPort")
+  def namespace(review_app), do: get_from_config(review_app, "namespace")
+  def port(review_app), do: get_from_config(review_app, "applicationPort")
 
   def abbreviated_hash(%{"spec" => %{"commitHash" => full_hash}}) do
     String.slice(full_hash, 0..10)
   end
 
-  def get_from_config(reviewapp, key) do
-    get_in(reviewapp, ["spec", "config", key])
+  def get_from_config(review_app, key) do
+    get_in(review_app, ["spec", "config", key])
   end
 
-  def get_status(reviewapp, key), do: get_status(reviewapp, key, nil)
+  def get_status(review_app, key), do: get_status(review_app, key, nil)
 
-  def get_status(reviewapp, key, default) do
-    case get_in(reviewapp, ["status", key]) do
+  def get_status(review_app, key, default) do
+    case get_in(review_app, ["status", key]) do
       nil -> default
       value -> value
     end
   end
 
-  def set_status(reviewapp, key, value) do
-    put_in(reviewapp, ["status", key], value)
+  def set_status(review_app, key, value) do
+    put_in(review_app, ["status", key], value)
   end
 end

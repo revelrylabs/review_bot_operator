@@ -15,16 +15,16 @@ defmodule ReviewAppOperator.Resource.AppService do
       ...> assert labels["reviewtron.k8s.revelry.co/build"] == get_in(app, ["spec", "pr"])
       ...> assert get_in(spec, ["selector", "reviewApp"]) == "revelry-phoenix-app-template-678"
   """
-  def from_review_app(reviewapp) do
+  def from_review_app(review_app) do
     manifest(%{
-      name: Resource.default_name(reviewapp),
-      ns: ReviewApp.namespace(reviewapp),
-      labels: Resource.default_labels(reviewapp),
-      port: ReviewApp.port(reviewapp)
+      name: Resource.default_name(review_app),
+      ns: ReviewApp.namespace(review_app),
+      labels: Resource.default_labels(review_app),
+      port: ReviewApp.port(review_app)
     })
   end
 
-  def manifest(%{name: name, ns: ns, labels: labels, port: port}) do
+  defp manifest(%{name: name, ns: ns, labels: labels, port: port}) do
     %{
       "apiVersion" => "v1",
       "kind" => "Service",

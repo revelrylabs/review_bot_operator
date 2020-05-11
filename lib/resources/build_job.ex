@@ -6,58 +6,14 @@ defmodule ReviewAppOperator.Resource.BuildJob do
   alias ReviewAppOperator.Resource
   alias ReviewAppOperator.Resource.ReviewApp
 
-  def job_name(%{"spec" => %{"repo" => repo, "pr" => pr}} = reviewapp) do
-    Resource.valid_label(repo, pr, ReviewApp.abbreviated_hash(reviewapp))
+  def job_name(review_app) do
+    Resource.valid_label(review_app, ReviewApp.abbreviated_hash(review_app))
   end
 
-  def image_tag(reviewapp) do
-    image_base = "#{Resource.default_name(reviewapp)}:#{ReviewApp.abbreviated_hash(reviewapp)}"
+  def image_tag(review_app) do
+    image_base = "#{Resource.default_name(review_app)}:#{ReviewApp.abbreviated_hash(review_app)}"
 
     full_tag(image_base)
-  end
-
-  # TODO: flesh this out
-  def from_review_app(reviewapp) do
-    manifest(%{
-      name: job_name(reviewapp),
-      ns: build_namespace(),
-      labels: Resource.default_labels(reviewapp)
-    })
-  end
-
-  # TODO: Put the real job info in here. This just tests by sleeping
-  # FOR DEV: Is there a way to override the images using an env flag
-  #   but have everything else be the same... so we can sub in a sleep container / command
-  #   w/o having to change the manifest at all?
-  def manifest(%{name: name, ns: ns, labels: labels}) do
-    %{
-      "apiVersion" => "batch/v1",
-      "kind" => "Job",
-      "metadata" => %{
-        "name" => name,
-        "namespace" => ns,
-        "labels" => labels
-      },
-      "spec" => %{
-        "backoffLimit" => 3,
-        "template" => %{
-          "metadata" => %{
-            "generateName" => name
-          },
-          "spec" => %{
-            "containers" => [
-              %{
-                "name" => "kaniko",
-                "image" => "busybox",
-                "command" => ["sleep", "45"]
-              }
-            ],
-            "initContainers" => [],
-            "restartPolicy" => "Never"
-          }
-        }
-      }
-    }
   end
 
   def selector(name) do
@@ -83,7 +39,100 @@ defmodule ReviewAppOperator.Resource.BuildJob do
 
   def status(_), do: :running
 
-  def build_namespace() do
+  def from_review_app(review_app) do
+    manifest(%{
+      build_image: build_image(),
+      context_name: context_name(review_app),
+      image_tag: image_tag(review_app),
+      labels: Resource.default_labels(review_app),
+      name: job_name(review_app),
+      ns: build_namespace(),
+      pull_secrets: pull_secrets(),
+      tarball_bucket: tarball_bucket(),
+      unpack_image: unpack_image()
+    })
+  end
+
+  defp manifest(%{
+         build_image: build_image,
+         context_name: context_name,
+         image_tag: image_tag,
+         labels: labels,
+         name: name,
+         ns: ns,
+         pull_secrets: pull_secrets,
+         tarball_bucket: tarball_bucket,
+         unpack_image: unpack_image
+       }) do
+    %{
+      "apiVersion" => "batch/v1",
+      "kind" => "Job",
+      "metadata" => %{
+        "name" => name,
+        "namespace" => ns,
+        "labels" => labels
+      },
+      "spec" => %{
+        "backoffLimit" => 3,
+        "template" => %{
+          "metadata" => %{
+            "generateName" => name
+          },
+          "spec" => %{
+            "containers" => [
+              %{
+                "name" => "kaniko",
+                "image" => build_image,
+                "args" => [
+                  "--dockerfile=Dockerfile",
+                  "--context=/var/unpack/#{context_name}",
+                  "--destination=#{image_tag}"
+                ],
+                "volumeMounts" => [
+                  %{"name" => "kaniko-aws", "mountPath" => "/root/.aws"},
+                  %{"name" => "kaniko-docker", "mountPath" => "/kaniko/.docker"},
+                  %{"name" => "unpack", "mountPath" => "/var/unpack"}
+                ]
+              }
+            ],
+            "initContainers" => [
+              %{
+                "name" => "unpack",
+                "image" => unpack_image,
+                "command" => ["unpack"],
+                "args" => [
+                  tarball_bucket,
+                  context_name
+                ],
+                "volumeMounts" => [
+                  %{"name" => "kaniko-aws", "mountPath" => "/root/.aws"},
+                  %{"name" => "unpack", "mountPath" => "/var/unpack"}
+                ]
+              }
+            ],
+            "imagePullSecrets" => pull_secrets,
+            "restartPolicy" => "Never",
+            "volumes" => [
+              %{
+                "name" => "kaniko-aws",
+                "secret" => %{"secretName" => "kaniko-aws"}
+              },
+              %{
+                "name" => "kaniko-docker",
+                "secret" => %{"secretName" => "kaniko-docker"}
+              },
+              %{
+                "name" => "unpack",
+                "emptyDir" => %{}
+              }
+            ]
+          }
+        }
+      }
+    }
+  end
+
+  defp build_namespace() do
     Application.get_env(:review_app_operator, :build_namespace, "default")
   end
 
@@ -92,5 +141,32 @@ defmodule ReviewAppOperator.Resource.BuildJob do
       "" -> base_tag
       root -> "#{root}/#{base_tag}"
     end
+  end
+
+  defp build_image() do
+    Application.get_env(:review_app_operator, :build_image)
+  end
+
+  defp unpack_image() do
+    Application.get_env(:review_app_operator, :build_unpack_image)
+  end
+
+  defp pull_secrets() do
+    Application.get_env(:review_app_operator, :build_pull_secrets, [])
+  end
+
+  defp context_name(%{"spec" => %{"repo" => repo, "repoOwner" => owner, "commitHash" => hash}}) do
+    Enum.join(
+      [
+        owner,
+        repo,
+        String.slice(hash, 0..7)
+      ],
+      "-"
+    )
+  end
+
+  defp tarball_bucket() do
+    Application.get_env(:review_app_operator, :tarball_bucket, "")
   end
 end

@@ -35,6 +35,12 @@ defmodule ReviewAppOperator.Controller.V1.ReviewApp do
       type: "string",
       description: "The pull request identifier for this branch",
       JSONPath: ".spec.pr"
+    },
+    %{
+      name: "Status",
+      type: "string",
+      description: "The status of the review app",
+      JSONPath: ".status.appStatus"
     }
   ]
 
@@ -48,11 +54,11 @@ defmodule ReviewAppOperator.Controller.V1.ReviewApp do
   """
   @spec add(map()) :: :ok | :error
   @impl Bonny.Controller
-  def add(%{} = reviewapp) do
-    log_event(:add, reviewapp)
+  def add(%{} = review_app) do
+    log_event(:add, review_app)
 
-    Builder.build_image(reviewapp)
-    Resource.create_all(reviewapp)
+    Builder.build_image(review_app)
+    Resource.create_all(review_app)
     :ok
   end
 
@@ -61,8 +67,8 @@ defmodule ReviewAppOperator.Controller.V1.ReviewApp do
   """
   @spec modify(map()) :: :ok | :error
   @impl Bonny.Controller
-  def modify(%{} = reviewapp) do
-    log_event(:modify, reviewapp)
+  def modify(%{} = review_app) do
+    log_event(:modify, review_app)
     # TODO: Compare commit hashes and rebuild if necessary
     :ok
   end
@@ -72,10 +78,10 @@ defmodule ReviewAppOperator.Controller.V1.ReviewApp do
   """
   @spec delete(map()) :: :ok | :error
   @impl Bonny.Controller
-  def delete(%{} = reviewapp) do
-    log_event(:delete, reviewapp)
-    Builder.delete_job(reviewapp)
-    Resource.delete_all(reviewapp)
+  def delete(%{} = review_app) do
+    log_event(:delete, review_app)
+    Builder.delete_job(review_app)
+    Resource.delete_all(review_app)
     :ok
   end
 
@@ -84,29 +90,29 @@ defmodule ReviewAppOperator.Controller.V1.ReviewApp do
   """
   @spec reconcile(map()) :: :ok | :error
   @impl Bonny.Controller
-  def reconcile(%{"status" => %{"buildStatus" => "building"}} = reviewapp) do
-    log_event(:reconcile, reviewapp)
+  def reconcile(%{"status" => %{"buildStatus" => "building"}} = review_app) do
+    log_event(:reconcile, review_app)
 
-    case Builder.job_status(reviewapp) do
-      :success -> handle_build_success(reviewapp)
-      :failure -> handle_build_failure(reviewapp)
+    case Builder.job_status(review_app) do
+      :success -> handle_build_success(review_app)
+      :failure -> handle_build_failure(review_app)
       :running -> nil
     end
 
     :ok
   end
 
-  def reconcile(%{} = reviewapp) do
-    log_event(:reconcile, reviewapp)
+  def reconcile(%{} = review_app) do
+    log_event(:reconcile, review_app)
     :ok
   end
 
   defp log_event(type, resource),
     do: Logger.info("#{type}: #{inspect(resource)}")
 
-  defp handle_build_success(reviewapp) do
+  defp handle_build_success(review_app) do
     _updated_app =
-      reviewapp
+      review_app
       |> ReviewApp.set_status("buildStatus", "success")
       |> ReviewApp.set_status("appStatus", "deployed")
       |> Resource.patch()
@@ -117,8 +123,8 @@ defmodule ReviewAppOperator.Controller.V1.ReviewApp do
     # |> Resource.patch()
   end
 
-  defp handle_build_failure(reviewapp) do
-    reviewapp
+  defp handle_build_failure(review_app) do
+    review_app
     |> ReviewApp.set_status("buildStatus", "error")
     |> ReviewApp.set_status("appStatus", "error")
     |> Resource.patch()

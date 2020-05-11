@@ -18,7 +18,7 @@ Deploy review apps for pull request
 ### ADD
 * build_app
 * Generate the resources and CREATE them, but use a 0 in the deployment replicas
-  (The deployment resource builder can do ^ based on the status info on the reviewapp)
+  (The deployment resource builder can do ^ based on the status info on the ReviewApp)
 
 
 ### MODIFY
@@ -48,7 +48,7 @@ Tear down all of the resources, including the current build job specified on the
 ### Requirements from the Probot side
 1. Upload the tarball to S3 (so the operator doesn't need GitHub access)
 1. Provide review app config from the repo's yaml file
-1. Provide branch, repo, PR # (as a string), commit hash, tarballUrl
+1. Provide branch, repoOwner, repo, PR # (as a string), commit hash, tarballUrl
 1. Update the commitHash, tarballUrl, and review app config when the PR is updated
 
 

@@ -35,7 +35,7 @@ defmodule TestReviewApp do
                 }
               }
             },
-            "version" => 10.6
+            "version" => "10.6"
           },
           "env" => %{
             "configMaps" => ["configMapOne", "configMapTwo"],
@@ -54,6 +54,7 @@ defmodule TestReviewApp do
           "registrySecretName" => "harbor"
         },
         "pr" => "678",
+        "repoOwner" => "revelrylabs",
         "repo" => "revelry_phoenix_app_template",
         "tarballUrl" => "https://s3.aws.com/bucket/repo_source.tar.gz"
       },

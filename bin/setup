@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if which asdf >/dev/null; then
+    echo "Running asdf install"
+    asdf plugin-add kubectl
+    asdf plugin-add minikube
+    asdf plugin update --all
+    asdf install
+else
+    echo "asdf not found. Please make sure it is installed by following directions below and try again"
+    echo "https://github.com/asdf-vm/asdf"
+    exit 1
+fi
+
+bin/dev/install-kubedb.sh
+bin/dev/install-resources.sh
