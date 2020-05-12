@@ -35,7 +35,7 @@ defmodule ReviewAppOperator.Kube.Client do
   end
 
   defp redact_secrets(%{data: %{"kind" => "Secret", "data" => _data}} = operation) do
-    put_in(operation, [:data, "data"], "[REDACTED]")
+    %{operation | data: Map.put(operation.data, "data", "REDACTED")}
   end
 
   defp redact_secrets(operation), do: operation
