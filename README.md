@@ -2,6 +2,40 @@
 
 Deploy review apps for pull request
 
+## Dev setup
+
+* Install [Virtualbox](https://www.virtualbox.org/wiki/Downloads) to power Minikube
+* Install [asdf](https://www.virtualbox.org/wiki/Downloads) to install dev tools and languages
+* run `bin/setup`
+
+To start the app, run `bin/console`.
+
+Use `kubectl` to create, modify, and destroy `ReviewApp` resources in your minikube cluster to observe the operator's behavior.
+
+
+## Requirements / expectations from the Probot side
+1. Upload the tarball to S3 (so the operator doesn't need GitHub access)
+1. Provide review app config from the repo's yaml file
+1. Provide branch, repoOwner, repo, PR # (as a string), commit hash, tarballUrl
+1. Update the commitHash, tarballUrl, and review app config when the PR is updated
+
+
+## Config Requirements
+1. Sort out the k8s permissions required and annotate the controller
+1. I believe the AWS and Harbor permissions are already in the builder namespace and the same build jobs should work w/o any changes there
+
+
+## List of resources
+- [X] Build job
+- [ ] app deployment
+- [X] app service
+- [ ] app ingress
+- [ ] TLS secret for ingress
+- [X] app database (kubedb Postgres)
+- [X] init secret for app database (to copy from existing db)
+
+
+## Flow logic breakdown
 
 ### build_app
 * Delete the existing Job resource, if any
@@ -43,26 +77,3 @@ Deploy review apps for pull request
 
 ### DELETE
 Tear down all of the resources, including the current build job specified on the review app
-
-
-### Requirements from the Probot side
-1. Upload the tarball to S3 (so the operator doesn't need GitHub access)
-1. Provide review app config from the repo's yaml file
-1. Provide branch, repoOwner, repo, PR # (as a string), commit hash, tarballUrl
-1. Update the commitHash, tarballUrl, and review app config when the PR is updated
-
-
-### Config Requirements
-1. Sort out the k8s permissions required and annotate the controller
-1. I believe the AWS and Harbor permissions are already in the builder namespace and the same build jobs should work w/o any changes there
-
-
-### List of resources
-- Build jobs
-- TLS secret
-- env secret
-- kubedb init secret
-- kubedb (postgres)
-- deployment
-- service
-- ingress

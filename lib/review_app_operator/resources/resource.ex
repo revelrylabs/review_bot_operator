@@ -5,7 +5,7 @@ defmodule ReviewAppOperator.Resource do
   # TODO: docspecs on the label and name functions
   # TODO: we'll need to use Mox for the k8s client
   """
-  require Logger
+  alias ReviewAppOperator.Kube
   alias ReviewAppOperator.Resource.{AppService, AppDatabase, DbCopySecret}
 
   @max_k8s_name_length 63
@@ -14,23 +14,15 @@ defmodule ReviewAppOperator.Resource do
     all_modules()
     |> Enum.map(&apply(&1, :from_review_app, [review_app]))
     |> Enum.filter(& &1)
-    |> Enum.map(&create/1)
+    |> Enum.map(&Kube.client().create(&1))
   end
 
   def delete_all(review_app) do
     all_modules()
     |> Enum.map(&apply(&1, :from_review_app, [review_app]))
     |> Enum.filter(& &1)
-    |> Enum.map(&delete/1)
+    |> Enum.map(&Kube.client().delete(&1))
   end
-
-  def create(resource), do: apply_operation(resource, &K8s.Client.create/1)
-
-  def get(resource), do: apply_operation(resource, &K8s.Client.get/1)
-
-  def patch(resource), do: apply_operation(resource, &K8s.Client.patch/1)
-
-  def delete(resource), do: apply_operation(resource, &K8s.Client.delete/1)
 
   def default_labels(%{"spec" => %{"pr" => pr, "repo" => repo}}) do
     group = Bonny.Config.group()
@@ -93,21 +85,5 @@ defmodule ReviewAppOperator.Resource do
     |> String.downcase()
     |> String.replace(~r/[^-a-z0-9]+/, "-", global: true)
     |> String.slice(0, @max_k8s_name_length - headroom)
-  end
-
-  defp apply_operation(resource, client_function) do
-    resource
-    |> client_function.()
-    |> log_operation()
-    |> K8s.Client.run(Bonny.Config.cluster_name())
-  end
-
-  # TODO: redact data for secrets
-  defp log_operation(%K8s.Operation{} = operation) do
-    operation
-    |> inspect()
-    |> Logger.info()
-
-    operation
   end
 end

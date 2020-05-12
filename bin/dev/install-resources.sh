@@ -3,6 +3,8 @@
 # PWD should be repo root
 cd $(dirname "$0")/../..
 
+echo "Installing local dev dependencies in minikube cluster"
+
 # regenerate the manifest for the CRD and operator permissions
 mix bonny.gen.manifest
 

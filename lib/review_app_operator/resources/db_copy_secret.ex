@@ -2,6 +2,7 @@ defmodule ReviewAppOperator.Resource.DbCopySecret do
   @moduledoc """
   Create manifest for a secret used by KubeDB to copy an existing db during initialization
   """
+  alias ReviewAppOperator.Kube
   alias ReviewAppOperator.Resource
   alias ReviewAppOperator.Resource.{ReviewApp, Secret}
 
@@ -98,7 +99,7 @@ defmodule ReviewAppOperator.Resource.DbCopySecret do
 
   # TODO: cache secrets, handle errors?
   defp evaluate_spec(%{"secretRef" => %{"name" => name, "key" => key}}, ns) do
-    {:ok, secret} = Resource.get(Secret.selector(name, ns))
+    {:ok, secret} = Kube.client().get(Secret.selector(name, ns))
 
     Base.decode64!(get_in(secret, ["data", key]))
   end

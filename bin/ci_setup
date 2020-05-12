@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# setup for the CI environment
+
+# Elixir app setup
+mix local.hex --force
+mix local.rebar --force
+mix deps.get
+
+# install coverage tool
+gem install coveralls-multi --no-document

@@ -4,9 +4,10 @@ defmodule ReviewAppOperator.Controller.V1.ReviewApp do
   """
   use Bonny.Controller
   require Logger
+  alias ReviewAppOperator.Build.Builder
+  alias ReviewAppOperator.Kube
   alias ReviewAppOperator.Resource
   alias ReviewAppOperator.Resource.ReviewApp
-  alias ReviewAppOperator.Build.Builder
 
   @scope :cluster
 
@@ -115,18 +116,18 @@ defmodule ReviewAppOperator.Controller.V1.ReviewApp do
       review_app
       |> ReviewApp.set_status("buildStatus", "success")
       |> ReviewApp.set_status("appStatus", "deployed")
-      |> Resource.patch()
+      |> Kube.client().patch()
 
     # TODO: something like this
     # updated_app
     # |> Deployment.from_review_app()
-    # |> Resource.patch()
+    # |> Kube.client().patch()
   end
 
   defp handle_build_failure(review_app) do
     review_app
     |> ReviewApp.set_status("buildStatus", "error")
     |> ReviewApp.set_status("appStatus", "error")
-    |> Resource.patch()
+    |> Kube.client().patch()
   end
 end

@@ -1,16 +1,34 @@
 #!/bin/bash
 
-if which asdf >/dev/null; then
-    echo "Running asdf install"
-    asdf plugin-add kubectl
-    asdf plugin-add minikube
-    asdf plugin update --all
-    asdf install
+echo "Running brew bundle"
+brew bundle
+
+if which virtualbox >/dev/null; then
+  echo "Virtualbox installed"
 else
-    echo "asdf not found. Please make sure it is installed by following directions below and try again"
-    echo "https://github.com/asdf-vm/asdf"
-    exit 1
+  echo "Virtualbox not found. Please install it from the site below to use minikube"
+  echo "https://www.virtualbox.org/wiki/Downloads"
+  exit 1
 fi
+
+if which asdf >/dev/null; then
+  echo "Running asdf install"
+  asdf plugin-add kubectl
+  asdf plugin-add minikube
+  asdf plugin-add erlang
+  asdf plugin-add elixir
+  asdf plugin update --all
+  asdf install
+else
+  echo "asdf not found. Please make sure it is installed by following directions below and try again"
+  echo "https://github.com/asdf-vm/asdf"
+  exit 1
+fi
+
+echo "Installing mix dependencies"
+mix local.hex --force
+mix local.rebar --force
+mix deps.get
 
 bin/dev/install-kubedb.sh
 bin/dev/install-resources.sh

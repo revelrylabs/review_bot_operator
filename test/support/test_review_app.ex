@@ -28,12 +28,7 @@ defmodule TestReviewApp do
                   "name" => "database-resource-auth"
                 }
               },
-              "user" => %{
-                "secretRef" => %{
-                  "key" => "POSTGRES_USER",
-                  "name" => "database-resource-auth"
-                }
-              }
+              "user" => %{"value" => "postgres"}
             },
             "version" => "10.6"
           },
