@@ -1,9 +1,8 @@
 defmodule ReviewAppOperator.Controller.V1.ReviewAppTest do
   @moduledoc false
-  use ExUnit.Case, async: false
+  use ReviewAppOperator.KubeCase, async: false
   alias ReviewAppOperator.Controller.V1.ReviewApp
   alias ReviewAppOperator.MockKubeClient
-  import Mox
 
   describe "add/1" do
     test "returns :ok" do
@@ -72,29 +71,5 @@ defmodule ReviewAppOperator.Controller.V1.ReviewAppTest do
       result = ReviewApp.reconcile(event)
       assert result == :ok
     end
-  end
-
-  defp expect_k8s(mock, action, times \\ 1) when action in [:create, :patch, :delete] do
-    expect(mock, action, times, fn resource -> {:ok, resource} end)
-  end
-
-  defp expect_get_secret(mock, times \\ 1) do
-    data = %{"POSTGRES_PASSWORD" => "cGFzc3dvcmQK"}
-    expect(mock, :get, times, fn resource -> {:ok, Map.put(resource, "data", data)} end)
-  end
-
-  defp expect_get_job(mock, :succeeded) do
-    status = %{"succeeded" => 1}
-    expect(mock, :get, fn resource -> {:ok, Map.put(resource, "status", status)} end)
-  end
-
-  defp expect_get_job(mock, :failed) do
-    response = fn resource ->
-      resource
-      |> Map.put("status", %{"failed" => 4})
-      |> Map.put("spec", %{"backoffLimit" => 3})
-    end
-
-    expect(mock, :get, &{:ok, response.(&1)})
   end
 end
