@@ -1,6 +1,6 @@
 defmodule ReviewAppOperator.Build.Builder do
-  alias ReviewAppOperator.Resource
   alias ReviewAppOperator.Resource.{ReviewApp, BuildJob}
+  alias ReviewAppOperator.Kube
   require Logger
 
   def build_image(review_app) do
@@ -10,9 +10,9 @@ defmodule ReviewAppOperator.Build.Builder do
     {:ok, _job} =
       review_app
       |> BuildJob.from_review_app()
-      |> Resource.create()
+      |> Kube.client().create()
 
-    Resource.patch(updated_app)
+    Kube.client().patch(updated_app)
 
     :ok
   end
@@ -21,7 +21,7 @@ defmodule ReviewAppOperator.Build.Builder do
     {:ok, job} =
       job_name
       |> BuildJob.selector()
-      |> Resource.get()
+      |> Kube.client().get()
 
     BuildJob.status(job)
   end
@@ -29,9 +29,9 @@ defmodule ReviewAppOperator.Build.Builder do
   def delete_job(%{"status" => %{"buildJobName" => job_name}}) do
     case job_name
          |> BuildJob.selector()
-         |> Resource.get() do
+         |> Kube.client().get() do
       {:ok, job} ->
-        Resource.delete(job)
+        Kube.client().delete(job)
 
       _ ->
         Logger.info("Job #{job_name} not found. Skipping delete")

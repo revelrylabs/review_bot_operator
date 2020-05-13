@@ -9,7 +9,14 @@ defmodule ReviewAppOperator.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       elixirc_options: [warnings_as_errors: true],
-      elixirc_paths: elixirc_paths(Mix.env())
+      elixirc_paths: elixirc_paths(Mix.env()),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
@@ -23,7 +30,9 @@ defmodule ReviewAppOperator.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:bonny, "~> 0.4"}
+      {:bonny, "~> 0.4"},
+      {:mox, "~> 0.5", only: :test},
+      {:excoveralls, "~> 0.11.2", only: :test}
     ]
   end
 

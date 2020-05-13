@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Installing KubeDB operator and CRDs in minikube cluster"
+
 minikube start --kubernetes-version v1.17.0
 
 kubectl config use-context minikube
