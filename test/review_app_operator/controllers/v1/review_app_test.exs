@@ -28,10 +28,13 @@ defmodule ReviewAppOperator.Controller.V1.ReviewAppTest do
   describe "delete/1" do
     test "returns :ok" do
       MockKubeClient
-      |> expect_get_secret()
-      |> expect_k8s(:delete, 4)
+      |> expect_get_secret(2)
+      |> expect_k8s(:delete, 5)
 
-      event = TestReviewApp.manifest()
+      event =
+        TestReviewApp.manifest()
+        |> put_in(["status", "buildJobName"], "buildJob-123")
+
       result = ReviewApp.delete(event)
       assert result == :ok
     end
