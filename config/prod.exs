@@ -13,4 +13,5 @@ config :bonny,
 config :review_app_operator,
   docker_root: "harbor.revelry-prod.revelry.net",
   build_namespace: "review-build",
-  tarball_bucket: "tarball_bucket"
+  tarball_bucket: "tarball_bucket",
+  app_domain: "revelry-prod.revelry.net"

@@ -6,7 +6,7 @@ defmodule ReviewAppOperator.Resource do
   # TODO: we'll need to use Mox for the k8s client
   """
   alias ReviewAppOperator.Kube
-  alias ReviewAppOperator.Resource.{AppService, AppDatabase, DbCopySecret}
+  alias ReviewAppOperator.Resource.{AppService, AppDatabase, AppDeployment, DbCopySecret}
 
   @max_k8s_name_length 63
 
@@ -76,7 +76,7 @@ defmodule ReviewAppOperator.Resource do
   end
 
   defp all_modules do
-    [AppService, DbCopySecret, AppDatabase]
+    [AppService, DbCopySecret, AppDatabase, AppDeployment]
   end
 
   defp kube_safe_name(base_name, headroom) do

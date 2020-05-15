@@ -2,6 +2,20 @@ defmodule ReviewAppOperator.Resource.AppDatabase do
   alias ReviewAppOperator.Resource
   alias ReviewAppOperator.Resource.{DbCopySecret, ReviewApp}
 
+  def auth_secret_name(review_app) do
+    case from_review_app(review_app) do
+      nil -> nil
+      %{"metadata" => %{"name" => name}} -> "#{name}-auth"
+    end
+  end
+
+  def host_name(review_app) do
+    case from_review_app(review_app) do
+      nil -> nil
+      %{"metadata" => %{"name" => name}} -> name
+    end
+  end
+
   def from_review_app(
         %{"spec" => %{"config" => %{"database" => %{"backend" => "kubedb"} = database}}} =
           review_app

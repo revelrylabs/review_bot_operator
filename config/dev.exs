@@ -15,4 +15,5 @@ config :review_app_operator,
   build_image: "grossvogel/sleep45:latest",
   build_unpack_image: "grossvogel/sleep45:latest",
   build_pull_secrets: [],
-  tarball_bucket: "tarball_bucket"
+  tarball_bucket: "tarball_bucket",
+  app_domain: "localreviewtest.com"
