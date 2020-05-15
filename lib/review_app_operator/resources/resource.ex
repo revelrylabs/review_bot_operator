@@ -64,8 +64,9 @@ defmodule ReviewAppOperator.Resource do
       iex> Resource.valid_label("review_app")
       "review-app"
 
-      iex> Resource.valid_label(String.duplicate("abc efg", 10))
-      String.duplicate("abc-efg", 9)
+      iex> input = "We made ourselves sentence that is just 63 characters in length plus 7"
+      ...> Resource.valid_label(input)
+      "we-made-ourselves-sentence-that-is-just-63-characters-in-length"
   """
   def valid_label(name), do: kube_safe_name(name, 0)
 
