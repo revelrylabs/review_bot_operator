@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: test-review-app
+---
+apiVersion: v1
+data:
+  CONFIG_KEY_ONE_ONE: "value from configmap 1"
+  CONFIG_KEY_ONE_TWO: "second value from configmap 1"
+kind: ConfigMap
+metadata:
+  name: config-map-one
+  namespace: test-review-app
+---
+apiVersion: v1
+data:
+  CONFIG_KEY_TWO_ONE: "value from configmap 2"
+  CONFIG_KEY_TWO_TWO: "second value from configmap 2"
+kind: ConfigMap
+metadata:
+  name: config-map-two
+  namespace: test-review-app
+---
+apiVersion: v1
+stringData:
+  SECRET_KEY_ONE_ONE: "value from secret 1"
+  SECRET_KEY_ONE_TWO: "second value from secret 1"
+kind: Secret
+metadata:
+  name: secret-one
+  namespace: test-review-app
+---
+apiVersion: v1
+stringData:
+  SECRET_KEY_TWO_ONE: "value from secret 2"
+  SECRET_KEY_TWO_TWO: "second value from secret 2"
+kind: Secret
+metadata:
+  name: secret-two
+  namespace: test-review-app

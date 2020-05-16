@@ -11,9 +11,9 @@ defmodule ReviewAppOperator.Resource.AppService do
       iex> app = TestReviewApp.manifest()
       ...> service = ReviewAppOperator.Resource.AppService.from_review_app(app)
       ...> assert %{"kind" => "Service", "metadata" => metadata, "spec" => spec} = service
-      ...> assert %{"namespace" => "app-template", "labels" => labels} = metadata
+      ...> assert %{"namespace" => "test-review-app", "labels" => labels} = metadata
       ...> assert labels["reviewtron.k8s.revelry.co/build"] == get_in(app, ["spec", "pr"])
-      ...> assert get_in(spec, ["selector", "reviewApp"]) == "revelry-phoenix-app-template-678"
+      ...> assert get_in(spec, ["selector", "reviewApp"]) == "review-app-test-678"
   """
   def from_review_app(review_app) do
     manifest(%{

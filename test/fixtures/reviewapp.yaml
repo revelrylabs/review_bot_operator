@@ -5,18 +5,18 @@ metadata:
   namespace: default
 spec:
   repoOwner: "revelrylabs"
-  repo: "revelry_phoenix_app_template"
+  repo: "test_review_app"
   branch: "test-review-operator"
   pr: "678"
   commitHash: "c8c9aa334a76677aa0be4ec0ebb08484367f952d"
   tarballUrl: "https://s3.aws.com/bucket/repo_source.tar.gz"
   config:
-    namespace: app-template
+    namespace: test-review-app
     applicationPort: 5000
     registrySecretName: harbor
     migrate:
-      command: ["./bin/app_template"]
-      args: ["eval", "AppTemplate.ReleaseTasks.migrate()"]
+      command: ["npm"]
+      args: ["run", "migrate"]
     database:
       backend: kubedb
       version: "10.6"
@@ -33,11 +33,11 @@ spec:
             key: POSTGRES_PASSWORD
     env:
       secrets:
-        - secretOne
-        - secretTwo
+        - secret-one
+        - secret-two
       configMaps:
-        - configMapOne
-        - configMapTwo
+        - config-map-one
+        - config-map-one
       values:
         - name: ENV_ONE
           value: "value number one"

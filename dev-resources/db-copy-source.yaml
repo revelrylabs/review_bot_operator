@@ -3,13 +3,13 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: app-template
+  name: test-review-app
 ---
 apiVersion: kubedb.com/v1alpha1
 kind: Postgres
 metadata:
   name: database-source
-  namespace: app-template
+  namespace: test-review-app
 spec:
   replicas: 1
   storage:
@@ -31,7 +31,8 @@ data:
   init.sql: |
     \c postgres;
     CREATE TABLE users(id SERIAL, email TEXT);
+    CREATE TABLE migrations(id TEXT, applied_at TIMESTAMP);
 kind: ConfigMap
 metadata:
   name: db-init
-  namespace: app-template
+  namespace: test-review-app

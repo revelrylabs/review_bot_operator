@@ -15,4 +15,5 @@ minikube start --kubernetes-version v1.17.0
 kubectl config use-context minikube
 kubectl apply -f dev-resources/build-secrets.yaml
 kubectl apply -f dev-resources/db-copy-source.yaml
+kubectl apply -f dev-resources/app-config.yaml
 kubectl apply -f manifest.yaml

@@ -11,7 +11,7 @@ config :bonny,
   cluster_name: :minikube
 
 config :review_app_operator,
-  docker_root: "",
+  docker_root: "grossvogel",
   build_image: "grossvogel/sleep45:latest",
   build_unpack_image: "grossvogel/sleep45:latest",
   build_pull_secrets: [],

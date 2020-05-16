@@ -9,7 +9,10 @@ defmodule ReviewAppOperator.Resource.AppDeployment do
     image_tag = BuildJob.image_tag(review_app)
     env_refs = env_refs(review_app)
     env_static = env_static(review_app)
-    init_containers = build_init_containers(review_app, image_tag, env_refs, env_static)
+    pull_secret = pull_secret(review_app)
+
+    init_containers =
+      build_init_containers(review_app, image_tag, env_refs, env_static, pull_secret)
 
     manifest(%{
       env_refs: env_refs,
@@ -20,7 +23,7 @@ defmodule ReviewAppOperator.Resource.AppDeployment do
       name: Resource.default_name(review_app),
       ns: ReviewApp.namespace(review_app),
       port: ReviewApp.port(review_app),
-      pull_secret: pull_secret(review_app),
+      pull_secret: pull_secret,
       replica_count: replica_count(review_app)
     })
   end
@@ -74,7 +77,7 @@ defmodule ReviewAppOperator.Resource.AppDeployment do
     }
   end
 
-  defp build_init_containers(review_app, image_tag, env_refs, env_static) do
+  defp build_init_containers(review_app, image_tag, env_refs, env_static, pull_secret) do
     case migrate_config(review_app) do
       {command, args} ->
         [
@@ -84,7 +87,8 @@ defmodule ReviewAppOperator.Resource.AppDeployment do
             "command" => command,
             "args" => args,
             "envFrom" => env_refs,
-            "env" => env_static
+            "env" => env_static,
+            "imagePullSecrets" => [pull_secret]
           }
         ]
 
@@ -117,20 +121,6 @@ defmodule ReviewAppOperator.Resource.AppDeployment do
   end
 
   defp env_refs(review_app) do
-    from_config = extract_env_config(review_app, "values")
-
-    values =
-      [
-        db_secret_ref(review_app)
-      ] ++ from_config
-
-    filter_truthy(values)
-  end
-
-  defp env_static(review_app) do
-    name = Resource.default_name(review_app)
-    hostname = Application.get_env(:review_app_operator, :app_domain)
-
     config_maps =
       extract_env_config(review_app, "configMaps", fn name ->
         %{
@@ -147,12 +137,29 @@ defmodule ReviewAppOperator.Resource.AppDeployment do
 
     values =
       [
+        db_secret_ref(review_app)
+      ] ++ config_maps ++ secrets
+
+    filter_truthy(values)
+  end
+
+  defp env_static(review_app) do
+    name = Resource.default_name(review_app)
+    hostname = Application.get_env(:review_app_operator, :app_domain)
+
+    from_config =
+      review_app
+      |> extract_env_config("values")
+      |> Enum.map(fn val -> Map.put(val, "value", "#{val["value"]}") end)
+
+    values =
+      [
         %{"name" => "APP_DOMAIN", "value" => "#{name}.#{hostname}"},
         %{"name" => "APP_NAME", "value" => "#{name}"},
         %{"name" => "CLUSTER_DISABLED", "value" => "1"},
         %{"name" => "NODE_IP", "valueFrom" => %{"fieldRef" => %{"fieldPath" => "status.podIP"}}},
         db_host_env(review_app)
-      ] ++ config_maps ++ secrets
+      ] ++ from_config
 
     filter_truthy(values)
   end
@@ -172,7 +179,7 @@ defmodule ReviewAppOperator.Resource.AppDeployment do
   end
 
   defp replica_count(review_app) do
-    case ReviewApp.get_status(review_app, "status") do
+    case ReviewApp.get_status(review_app, "appStatus") do
       "deployed" -> 1
       _ -> 0
     end

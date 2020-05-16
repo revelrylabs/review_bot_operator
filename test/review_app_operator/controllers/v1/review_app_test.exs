@@ -47,7 +47,7 @@ defmodule ReviewAppOperator.Controller.V1.ReviewAppTest do
     test "handles build completion" do
       MockKubeClient
       |> expect_get_job(:succeeded)
-      |> expect_k8s(:patch)
+      |> expect_k8s(:patch, 2)
 
       event =
         TestReviewApp.manifest()
