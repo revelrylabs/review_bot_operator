@@ -1,3 +1,7 @@
+# NOTE: this isn't really used by tests, but is provided for testing locally
+# Some of the data in this review app, such as the repo, PR, commitHash, and namespace
+# are connected to some of the dev tools and scripts
+# Values here are _mostly_ in sync with `test_review_app.ex` but not 100%
 apiVersion: reviewtron.k8s.revelry.co/v1
 kind: ReviewApp
 metadata:

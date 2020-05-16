@@ -50,7 +50,7 @@ defmodule TestReviewApp do
         },
         "pr" => "678",
         "repoOwner" => "revelrylabs",
-        "repo" => "review_app_test",
+        "repo" => "revelry_phoenix_app_template",
         "tarballUrl" => "https://s3.aws.com/bucket/repo_source.tar.gz"
       },
       "status" => %{}
