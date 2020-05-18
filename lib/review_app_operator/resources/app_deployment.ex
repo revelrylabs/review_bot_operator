@@ -9,10 +9,8 @@ defmodule ReviewAppOperator.Resource.AppDeployment do
     image_tag = BuildJob.image_tag(review_app)
     env_refs = env_refs(review_app)
     env_static = env_static(review_app)
-    pull_secret = pull_secret(review_app)
 
-    init_containers =
-      build_init_containers(review_app, image_tag, env_refs, env_static, pull_secret)
+    init_containers = build_init_containers(review_app, image_tag, env_refs, env_static)
 
     manifest(%{
       env_refs: env_refs,
@@ -23,7 +21,7 @@ defmodule ReviewAppOperator.Resource.AppDeployment do
       name: Resource.default_name(review_app),
       ns: ReviewApp.namespace(review_app),
       port: ReviewApp.port(review_app),
-      pull_secret: pull_secret,
+      pull_secret: pull_secret(review_app),
       replica_count: replica_count(review_app)
     })
   end
@@ -77,7 +75,7 @@ defmodule ReviewAppOperator.Resource.AppDeployment do
     }
   end
 
-  defp build_init_containers(review_app, image_tag, env_refs, env_static, pull_secret) do
+  defp build_init_containers(review_app, image_tag, env_refs, env_static) do
     case migrate_config(review_app) do
       {command, args} ->
         [
@@ -87,8 +85,7 @@ defmodule ReviewAppOperator.Resource.AppDeployment do
             "command" => command,
             "args" => args,
             "envFrom" => env_refs,
-            "env" => env_static,
-            "imagePullSecrets" => [pull_secret]
+            "env" => env_static
           }
         ]
 
