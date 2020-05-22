@@ -6,12 +6,16 @@ defmodule ReviewAppOperator.Resource.AppService do
   alias ReviewAppOperator.Resource
   alias ReviewAppOperator.Resource.ReviewApp
 
+  @spec from_review_app(map) :: %{
+          optional(<<_::32, _::_*16>>) =>
+            <<_::16, _::_*40>> | %{optional(<<_::32, _::_*8>>) => any}
+        }
   @doc """
   ### Examples
       iex> app = TestReviewApp.manifest()
       ...> service = ReviewAppOperator.Resource.AppService.from_review_app(app)
       ...> assert %{"kind" => "Service", "metadata" => metadata, "spec" => spec} = service
-      ...> assert %{"namespace" => "app-template", "labels" => labels} = metadata
+      ...> assert %{"namespace" => "test-review-app", "labels" => labels} = metadata
       ...> assert labels["reviewtron.k8s.revelry.co/build"] == get_in(app, ["spec", "pr"])
       ...> assert get_in(spec, ["selector", "reviewApp"]) == "revelry-phoenix-app-template-678"
   """

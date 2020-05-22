@@ -33,8 +33,8 @@ defmodule TestReviewApp do
             "version" => "10.6"
           },
           "env" => %{
-            "configMaps" => ["configMapOne", "configMapTwo"],
-            "secrets" => ["secretOne", "secretTwo"],
+            "configMaps" => ["config-map-one", "config-map-two"],
+            "secrets" => ["secret-one", "secret-two"],
             "values" => [
               %{"name" => "ENV_ONE", "value" => "value number one"},
               %{"name" => "ENV_TWO", "value" => 1}
@@ -45,7 +45,7 @@ defmodule TestReviewApp do
             "args" => ["eval", "AppTemplate.ReleaseTasks.migrate()"],
             "command" => ["./bin/app_template"]
           },
-          "namespace" => "app-template",
+          "namespace" => "test-review-app",
           "registrySecretName" => "harbor"
         },
         "pr" => "678",

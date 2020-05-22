@@ -101,6 +101,6 @@ defmodule ReviewAppOperator.Resource.DbCopySecret do
   defp evaluate_spec(%{"secretRef" => %{"name" => name, "key" => key}}, ns) do
     {:ok, secret} = Kube.client().get(Secret.selector(name, ns))
 
-    Base.decode64!(get_in(secret, ["data", key]))
+    Secret.get_data(secret, key)
   end
 end

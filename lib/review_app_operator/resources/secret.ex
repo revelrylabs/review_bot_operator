@@ -26,6 +26,10 @@ defmodule ReviewAppOperator.Resource.Secret do
     }
   end
 
+  def get_data(%{"data" => data}, key) do
+    Base.decode64!(Map.get(data, key))
+  end
+
   def selector(name, namespace) do
     %{
       "apiVersion" => "v1",

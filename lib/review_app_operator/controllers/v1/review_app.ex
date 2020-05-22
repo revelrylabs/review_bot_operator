@@ -7,7 +7,7 @@ defmodule ReviewAppOperator.Controller.V1.ReviewApp do
   alias ReviewAppOperator.Build.Builder
   alias ReviewAppOperator.Kube
   alias ReviewAppOperator.Resource
-  alias ReviewAppOperator.Resource.ReviewApp
+  alias ReviewAppOperator.Resource.{AppDeployment, ReviewApp}
 
   @scope :cluster
 
@@ -68,9 +68,20 @@ defmodule ReviewAppOperator.Controller.V1.ReviewApp do
   """
   @spec modify(map()) :: :ok | :error
   @impl Bonny.Controller
-  def modify(%{} = review_app) do
+  def modify(
+        %{
+          "spec" => %{"commitHash" => current_hash},
+          "status" => %{"buildCommit" => built_hash}
+        } = review_app
+      )
+      when current_hash != built_hash do
     log_event(:modify, review_app)
-    # TODO: Compare commit hashes and rebuild if necessary
+    Builder.build_image(review_app)
+    :ok
+  end
+
+  def modify(review_app) do
+    log_event(:modify, review_app)
     :ok
   end
 
@@ -112,16 +123,16 @@ defmodule ReviewAppOperator.Controller.V1.ReviewApp do
     do: Logger.info("#{type}: #{inspect(resource)}")
 
   defp handle_build_success(review_app) do
-    _updated_app =
+    updated_app =
       review_app
       |> ReviewApp.set_status("buildStatus", "success")
       |> ReviewApp.set_status("appStatus", "deployed")
-      |> Kube.client().patch()
 
-    # TODO: something like this
-    # updated_app
-    # |> Deployment.from_review_app()
-    # |> Kube.client().patch()
+    Kube.client().patch(updated_app)
+
+    updated_app
+    |> AppDeployment.from_review_app()
+    |> Kube.client().patch()
   end
 
   defp handle_build_failure(review_app) do

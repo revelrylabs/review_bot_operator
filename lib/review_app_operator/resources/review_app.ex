@@ -9,7 +9,7 @@ defmodule ReviewAppOperator.Resource.ReviewApp do
   def port(review_app), do: get_from_config(review_app, "applicationPort")
 
   def abbreviated_hash(%{"spec" => %{"commitHash" => full_hash}}) do
-    String.slice(full_hash, 0..10)
+    String.slice(full_hash, 0..9)
   end
 
   def get_from_config(review_app, key) do
