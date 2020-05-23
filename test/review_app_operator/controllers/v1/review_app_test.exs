@@ -8,7 +8,7 @@ defmodule ReviewAppOperator.Controller.V1.ReviewAppTest do
     test "returns :ok" do
       MockKubeClient
       |> expect_get_secret()
-      |> expect_k8s(:create, 5)
+      |> expect_k8s(:create, 7)
       |> expect_k8s(:patch)
 
       event = TestReviewApp.manifest()
@@ -29,7 +29,7 @@ defmodule ReviewAppOperator.Controller.V1.ReviewAppTest do
     test "returns :ok" do
       MockKubeClient
       |> expect_get_secret(2)
-      |> expect_k8s(:delete, 5)
+      |> expect_k8s(:delete, 7)
 
       event =
         TestReviewApp.manifest()

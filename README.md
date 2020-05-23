@@ -27,10 +27,10 @@ Use `kubectl` to create, modify, and destroy `ReviewApp` resources in your minik
 
 ## List of resources
 - [X] Build job
-- [ ] app deployment
+- [X] app deployment
 - [X] app service
-- [ ] app ingress
-- [ ] TLS secret for ingress
+- [X] app ingress
+- [X] TLS secret for ingress
 - [X] app database (kubedb Postgres)
 - [X] init secret for app database (to copy from existing db)
 

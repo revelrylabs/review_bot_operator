@@ -3,7 +3,15 @@ defmodule ReviewAppOperator.Resource do
   Utilities for working with resources
   """
   alias ReviewAppOperator.Kube
-  alias ReviewAppOperator.Resource.{AppService, AppDatabase, AppDeployment, DbCopySecret}
+
+  alias ReviewAppOperator.Resource.{
+    AppDatabase,
+    AppDeployment,
+    AppIngress,
+    AppService,
+    DbCopySecret,
+    IngressTlsSecret
+  }
 
   @max_k8s_name_length 63
 
@@ -142,7 +150,14 @@ defmodule ReviewAppOperator.Resource do
   end
 
   defp all_modules do
-    [AppService, DbCopySecret, AppDatabase, AppDeployment]
+    [
+      AppDatabase,
+      AppDeployment,
+      AppIngress,
+      AppService,
+      DbCopySecret,
+      IngressTlsSecret
+    ]
   end
 
   defp kube_safe_name(base_name, headroom) do
