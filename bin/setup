@@ -13,10 +13,10 @@ fi
 
 if which asdf >/dev/null; then
   echo "Running asdf install"
-  asdf plugin-add kubectl
-  asdf plugin-add minikube
-  asdf plugin-add erlang
-  asdf plugin-add elixir
+  asdf plugin-add kubectl || echo "skip kubectl"
+  asdf plugin-add minikube || echo "skip minikube"
+  asdf plugin-add erlang || echo "skip erlant"
+  asdf plugin-add elixir || echo "skip elixir"
   asdf plugin update --all
   asdf install
 else
