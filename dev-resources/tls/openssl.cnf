@@ -9,7 +9,7 @@ req_extensions = v3_req
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = *.local
+DNS.1 = *.review.local
 
 [dn]
 C=US
@@ -18,4 +18,4 @@ L=New Orleans
 O=Revelry Labs
 OU=Development
 emailAddress=test@revelrylabs.com
-CN=*.local
+CN=*.review.local

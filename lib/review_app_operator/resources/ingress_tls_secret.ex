@@ -20,8 +20,7 @@ defmodule ReviewAppOperator.Resource.IngressTlsSecret do
   defp manifest(%{name: name, ns: ns, original: original}) do
     %{
       original
-      | "metadata" => %{"name" => name, "namespace" => ns},
-        "status" => %{}
+      | "metadata" => %{"name" => name, "namespace" => ns}
     }
   end
 

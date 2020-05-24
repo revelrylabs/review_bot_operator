@@ -4,10 +4,10 @@
 # in the minikube cluster. Also emit a ca.crt file that can be
 # added to your browser's trust store to view review apps over TLS
 
-# The cert will be created for the *.local domain, so your
+# The cert will be created for the *.review.local domain, so your
 # app_domain setting should use that value
 
-SECRET_NAME=star-dot-local-tls
+SECRET_NAME=star-review-local-tls
 NAMESPACE=default
 
 # PWD should be the tls folder
