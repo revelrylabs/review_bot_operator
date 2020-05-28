@@ -6,12 +6,24 @@ Deploy review apps for pull request
 
 * Install [Virtualbox](https://www.virtualbox.org/wiki/Downloads) to power Minikube
 * Install [asdf](https://www.virtualbox.org/wiki/Downloads) to install dev tools and languages
-* run `bin/setup`
+* Run `bin/setup`
 
-To start the app, run `bin/console`.
+### TLS Setup
+The setup script will create a one-off root CA whose cert can be found at `dev-resources/tls/ca.crt`. If you want to make sure that portion of the ingress is working properly or just want to view the test review app over TLS, you can add that CA to your trust store. Firefox is a good browser for this because it manages its own trusted CAs rather than making you add them to the operating system.
 
-Use `kubectl` to create, modify, and destroy `ReviewApp` resources in your minikube cluster to observe the operator's behavior.
+### Manual Local Testing
+1. Start minikube with `minikube start`
+1. Start the operator with `bin/console`. (It will run with iex attached.)
+1. In another terminal, create a review app with `./bin/dev/create-review-app.sh`
+1. This will create a build job as well as the other review app resources, though the deployment will be scaled to 0 until the build finishes.
+1. 90s later, the build will finish and the deployment should be scaled up to 1 replica.
+1. You should now be able to access your review app at https://test-review-app-678.review.local if you set up the CA certificate in your trust store
+1. The test review app shows its environment and tests its DB connection by reading out the "migrations" table in its database. There should be a new migration for every deployment update, with the commit hash as the id.
+1. To simulate pushing a new commit to PR number 678, you can run `./bin/dev/patch-review-app.sh`. This will kick off another build.
+1. 90s later the second build will finish and the deployment will update. You should be able to see the updated version and new migration in the browser.
+1. To kill the review app, run `./bin/dev/delete-review-app.sh`, and all related resources should be cleaned up by the operator.
 
+---
 
 ## Requirements / expectations from the Probot side
 1. Upload the tarball to S3 (so the operator doesn't need GitHub access)
@@ -27,10 +39,10 @@ Use `kubectl` to create, modify, and destroy `ReviewApp` resources in your minik
 
 ## List of resources
 - [X] Build job
-- [ ] app deployment
+- [X] app deployment
 - [X] app service
-- [ ] app ingress
-- [ ] TLS secret for ingress
+- [X] app ingress
+- [X] TLS secret for ingress
 - [X] app database (kubedb Postgres)
 - [X] init secret for app database (to copy from existing db)
 

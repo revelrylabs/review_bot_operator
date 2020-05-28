@@ -16,4 +16,6 @@ config :review_app_operator,
   build_unpack_image: "grossvogel/sleep45:latest",
   build_pull_secrets: [],
   tarball_bucket: "tarball_bucket",
-  app_domain: "localreviewtest.com"
+  app_domain: "review.local",
+  tls_secret_name: "star-review-local-tls",
+  tls_secret_namespace: "default"

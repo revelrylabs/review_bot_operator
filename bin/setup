@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 echo "Running brew bundle"
 brew bundle
@@ -13,10 +13,10 @@ fi
 
 if which asdf >/dev/null; then
   echo "Running asdf install"
-  asdf plugin-add kubectl
-  asdf plugin-add minikube
-  asdf plugin-add erlang
-  asdf plugin-add elixir
+  asdf plugin-add kubectl || echo "skip kubectl"
+  asdf plugin-add minikube || echo "skip minikube"
+  asdf plugin-add erlang || echo "skip erlant"
+  asdf plugin-add elixir || echo "skip elixir"
   asdf plugin update --all
   asdf install
 else
@@ -30,5 +30,10 @@ mix local.hex --force
 mix local.rebar --force
 mix deps.get
 
+echo "Starting minikube"
+minikube start --kubernetes-version v1.17.0
+bin/dev/enable-ingress.sh
 bin/dev/install-kubedb.sh
 bin/dev/install-resources.sh
+bin/dev/update-minikube-hosts-entry.sh test-review-app-678.review.local
+bin/dev/create-tls-secret.sh

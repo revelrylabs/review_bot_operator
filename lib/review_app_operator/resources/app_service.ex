@@ -21,12 +21,14 @@ defmodule ReviewAppOperator.Resource.AppService do
   """
   def from_review_app(review_app) do
     manifest(%{
-      name: Resource.default_name(review_app),
+      name: name(review_app),
       ns: ReviewApp.namespace(review_app),
       labels: Resource.default_labels(review_app),
       port: ReviewApp.port(review_app)
     })
   end
+
+  def name(review_app), do: Resource.default_name(review_app)
 
   defp manifest(%{name: name, ns: ns, labels: labels, port: port}) do
     %{

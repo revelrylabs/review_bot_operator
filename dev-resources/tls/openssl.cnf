@@ -1,0 +1,21 @@
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha256
+distinguished_name = dn
+req_extensions = v3_req
+
+[v3_req]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = *.review.local
+
+[dn]
+C=US
+ST=Louisiana
+L=New Orleans
+O=Revelry Labs
+OU=Development
+emailAddress=test@revelrylabs.com
+CN=*.review.local
